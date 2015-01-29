@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>VF Notifier</title>
+        <link rel="stylesheet" type="text/css" href="panel.css">
+    </head>
+    <body>
+        <div id="notificationList" class="Hidden">
+            You have no notifications yet.
+        </div>
+        <div id="infoBox">
+            <p>You need to <a id="forumEntry" href="">sign in</a> to <span id="forumName">&nbsp;</span>.</p>
+            <p>You can change the forum you use by entering a new webroot below:</p>
+            <input type="text" id="forumRoot"/>
+            <span id="throbber" class="Hidden">&nbsp;</span>
+            <div id="errorMessage" class="Hidden">
+                The url you entered doesn't seem to be a valid Vanilla forums installation. Make sure you entered it in the form of <code>http://vanillaforums.org</code>.
+            </div>
+        </div>
+    </body>
+</html>
