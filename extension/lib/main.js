@@ -115,12 +115,12 @@ function updateNotificationCount() {
         url: ss.storage.forumRoot + "/profile.json",
         onComplete: function (response) {
             var ProfileData = response.json;
-            if (ProfileData.Code) {
+            if (!!ProfileData && ProfileData.Code) {
                 panel.port.emit("loggedOut");
                 loggedIn = false;
                 button.icon = iconOff;
             }
-            else {
+            else if(!!ProfileData) {
                 panel.port.emit("loggedIn");
                 loggedIn = true;
                 button.icon = iconOn;
