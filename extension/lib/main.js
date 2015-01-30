@@ -13,13 +13,10 @@ var loggedIn = false;
 if(!ss.storage.forumRoot) {
     ss.storage.forumRoot = "http://vanillaforums.org";
 }
-
 if(!ss.storage.forumName) {
     ss.storage.forumName = "Vanilla Forums.org";
 }
 
-var forumRoot = ss.storage.forumRoot;
-var forumName = ss.storage.forumName;
 var updateInterval = 10; // update interval in minutes
 
 var iconOn = {
@@ -49,8 +46,8 @@ var panel = panels.Panel({
 });
 
 panel.port.on("click", function (url) {
-    if(url.substr(0, forumRoot.length) != forumRoot) {
-        url = forumRoot + url;
+    if(url.substr(0, ss.storage.forumRoot.length) !== ss.storage.forumRoot) {
+        url = ss.storage.forumRoot + url;
     }
     require("sdk/tabs").open(url);
     panel.hide();
@@ -70,7 +67,7 @@ panel.port.on("updatedForumRoot", function(tempUrl) {
         }}).get();
 });
 
-panel.port.emit("send-storage", forumRoot, forumName);
+panel.port.emit("send-storage", ss.storage.forumRoot, ss.storage.forumName);
 
 function getVanillaName(forumUrl) {
     request({
@@ -97,16 +94,14 @@ function handleHide() {
 function updateStorage(tempUrl, tempName) {
     ss.storage.forumRoot = tempUrl;
     ss.storage.forumName = tempName;
-    forumRoot = ss.storage.forumRoot;
-    forumName = ss.storage.forumName;
-    panel.port.emit("send-storage", forumRoot, forumName);
+    panel.port.emit("send-storage", ss.storage.forumRoot, ss.storage.forumName);
 }
 
 function updatePanelContent() {
     updateNotificationCount();
     if(loggedIn) {
         request({
-            url: forumRoot + "/profile/notificationspopin?DeliveryType=VIEW",
+            url: ss.storage.forumRoot + "/profile/notificationspopin?DeliveryType=VIEW",
             onComplete: function (response) {
                 var NotificationList = response.text;
                 // check for permission and re-authenticate
@@ -117,7 +112,7 @@ function updatePanelContent() {
 
 function updateNotificationCount() {
     request({
-        url: forumRoot + "/profile.json",
+        url: ss.storage.forumRoot + "/profile.json",
         onComplete: function (response) {
             var ProfileData = response.json;
             if (ProfileData.Code) {
