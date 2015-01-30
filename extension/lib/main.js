@@ -1,6 +1,6 @@
 "use strict";
 
-const { ToggleButton } = require('sdk/ui/button/toggle');
+const { ToggleButton } = require("sdk/ui/button/toggle");
 const { data } = require("sdk/self");
 const request = require("sdk/request").Request;
 var panels = require("sdk/panel");
@@ -88,7 +88,7 @@ function handleChange(state) {
 }
 
 function handleHide() {
-    button.state('window', {checked: false});
+    button.state("window", {checked: false});
 }
 
 function updateStorage(tempUrl, tempName) {
@@ -116,16 +116,16 @@ function updateNotificationCount() {
         onComplete: function (response) {
             var ProfileData = response.json;
             if (ProfileData.Code) {
-                panel.port.emit('loggedOut');
+                panel.port.emit("loggedOut");
                 loggedIn = false;
                 button.icon = iconOff;
             }
             else {
-                panel.port.emit('loggedIn');
+                panel.port.emit("loggedIn");
                 loggedIn = true;
                 button.icon = iconOn;
                 countNotifications = parseInt(ProfileData.Profile.CountNotifications, 10) + parseInt(ProfileData.Profile.CountUnreadConversations, 10);
-                if(countNotifications != '0') {
+                if(countNotifications !== 0) {
                     button.badge = countNotifications;
                     button.badgeColor =  "#AA0000";
                 }
