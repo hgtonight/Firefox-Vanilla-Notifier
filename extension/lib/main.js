@@ -103,7 +103,7 @@ function updatePanelContent() {
         request({
             url: ss.storage.forumRoot + "/profile/notificationspopin?DeliveryType=VIEW",
             onComplete: function (response) {
-                var NotificationList = response.text;
+                var NotificationList = response.text.replace(/(src="(?!http))/gi, "$1" + ss.storage.forumRoot);
                 // check for permission and re-authenticate
                 panel.port.emit("send-list", NotificationList);
             }}).get();
