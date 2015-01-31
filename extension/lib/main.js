@@ -6,6 +6,7 @@ const request = require("sdk/request").Request;
 var panels = require("sdk/panel");
 var timers = require("sdk/timers");
 var ss = require("sdk/simple-storage");
+var base64 = require("./base64");
 
 var countNotifications = 0;
 var loggedIn = false;
@@ -24,13 +25,13 @@ var iconOn = {
         "32": "./icon-32.png",
         "64": "./icon-64.png"
     };
-    
+
 var iconOff = {
         "16": "./icon-16-off.png",
         "32": "./icon-32-off.png",
         "64": "./icon-64-off.png"
     };
-    
+
 
 var button = ToggleButton({
     id: "vanilla-notifier",
@@ -98,16 +99,24 @@ function updateStorage(tempUrl, tempName) {
 }
 
 function updatePanelContent() {
-    updateNotificationCount();
-    if(loggedIn) {
-        request({
-            url: ss.storage.forumRoot + "/profile/notificationspopin?DeliveryType=VIEW",
-            onComplete: function (response) {
-                var NotificationList = response.text;
-                // check for permission and re-authenticate
-                panel.port.emit("send-list", NotificationList);
-            }}).get();
-    }
+    request({
+        url: ss.storage.forumRoot + "/profile.json/notificationspopin?DeliveryType=VIEW",
+        onComplete: function (response) {
+            var popinObj = response.json;
+            if (!!popinObj) {
+                if (popinObj.Code) {
+                    setLoginStatus(false);
+                }
+                else {
+                    setLoginStatus(true);
+                    var NotificationList = base64.atob(popinObj.Data);
+                    panel.port.emit("send-list", NotificationList);
+                    button.badge = null;
+                    button.badgeColor = null;
+                }
+            }
+        }
+    }).get();
 }
 
 function updateNotificationCount() {
@@ -115,26 +124,38 @@ function updateNotificationCount() {
         url: ss.storage.forumRoot + "/profile.json",
         onComplete: function (response) {
             var ProfileData = response.json;
-            if (!!ProfileData && ProfileData.Code) {
-                panel.port.emit("loggedOut");
-                loggedIn = false;
-                button.icon = iconOff;
-            }
-            else if(!!ProfileData) {
-                panel.port.emit("loggedIn");
-                loggedIn = true;
-                button.icon = iconOn;
-                countNotifications = parseInt(ProfileData.Profile.CountNotifications, 10) + parseInt(ProfileData.Profile.CountUnreadConversations, 10);
-                if(countNotifications !== 0) {
-                    button.badge = countNotifications;
-                    button.badgeColor =  "#AA0000";
+            if (!!ProfileData) {
+                if (ProfileData.Code) {
+                    setLoginStatus(false);
                 }
                 else {
-                    button.badge = null;
-                    button.badgeColor = null;
+                    setLoginStatus(true);
+                    countNotifications = parseInt(ProfileData.Profile.CountNotifications, 10) + parseInt(ProfileData.Profile.CountUnreadConversations, 10);
+                    if (countNotifications !== 0) {
+                        button.badge = countNotifications;
+                        button.badgeColor = "#AA0000";
+                    }
+                    else {
+                        button.badge = null;
+                        button.badgeColor = null;
+                    }
                 }
             }
-        }}).get();
+        }
+    }).get();
+}
+
+function setLoginStatus(state) {
+    if(state) {
+        panel.port.emit("loggedIn");
+        loggedIn = true;
+        button.icon = iconOn;
+    }
+    else {
+        panel.port.emit("loggedOut");
+        loggedIn = false;
+        button.icon = iconOff;
+    }
 }
 
 updateNotificationCount();

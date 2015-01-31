@@ -1,3 +1,4 @@
+var baseNode = document.getElementsByTagName("base");
 var forumName = document.getElementById("forumName");
 var rootInput = document.getElementById("forumRoot");
 var forumEntryAnchor = document.getElementById("forumEntry");
@@ -14,6 +15,7 @@ self.port.on("send-list", function(listHtml) {
 });
 
 self.port.on("send-storage", function(urlRoot, siteName) {
+    baseNode.href = urlRoot;
     rootInput.value = urlRoot;
     forumName.textContent = siteName;
     forumEntryAnchor.href = urlRoot + "/entry/signin";
